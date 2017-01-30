@@ -1,0 +1,9 @@
+node_modules
+playground
+
+public/js/bundle.js
+config/config.json
+
+temp.js
+ecosystem.config.js
+npm-debug.log
