@@ -2,8 +2,10 @@ require('./config/config');
 
 console.log('Process:', process.env.NODE_ENV);
 
-const express = require('express');
+const fs = require('fs');
 const path = require('path');
+
+const express = require('express');
 const fetch = require('node-fetch');
 const bodyParser = require('body-parser');
 
@@ -11,13 +13,14 @@ const app = express();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
-
 const {
   API_KEY,
   PORT
 } = process.env;
 
-const data = ['GOOG'];
+const data = fs.existsSync('data.dat') ?
+  JSON.parse(fs.readFileSync('data.dat', 'utf8')) :
+  [];
 
 const fetchData = (ind) => {
   const url = `https://www.quandl.com/api/v3/datasets/WIKI/${ind}.json?start_date=2016-01-01&end_date=2017-01-31&api_key=${API_KEY}`
@@ -40,6 +43,7 @@ app.post('/graphs', (req, res) => {
     .then(json => {
       if (json.quandl_error) throw new Error(json.quandl_error);
       data.push(req.body.data);
+      fs.writeFileSync('data.dat', JSON.stringify(data));
       io.emit('graph updated', (new Date()))
       res.send(json);
     })
@@ -52,8 +56,6 @@ app.get('*', (req, res) => {
 
 io.on('connection', (socket) => {
   console.log('User connected', socket.id);
-
-  // socket.emit('ping', {hello: 'world'});
 
   socket.on('test emit', (msg) => {
     console.log(msg)

@@ -4,6 +4,7 @@ playground
 public/js/bundle.js
 config/config.json
 
-temp.js
+data.dat
 ecosystem.config.js
 npm-debug.log
+temp.js
