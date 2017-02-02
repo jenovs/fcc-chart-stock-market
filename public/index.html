@@ -7,12 +7,14 @@
   <title>Chart the Stock Market</title>
 </head>
 <body>
-  <div id="graph"></div>
-  <form>
-    <input type="text">
-    <button type="submit">Search</button>
-  </form>
-  <div id="symb"></div>
+  <div class="container">
+    <div id="graph"></div>
+    <form>
+      <input type="text" autofocus />
+      <button type="submit">Search</button>
+    </form>
+    <div id="symb" class="symbols"></div>
+  </div>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/bundle.js"></script>
 </body>

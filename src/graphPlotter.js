@@ -2,25 +2,32 @@ import * as d3 from 'd3';
 
 import { getMax } from './helpers';
 
-const w = 1000;
-const h = 500;
-const p = 50;
-
-const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+// console.log(window.innerWidth);
 const parseTime = d3.timeParse('%Y-%m-%d');
 
 const svg = d3
   .select('#graph')
   .append('svg')
+
+let w, h, p
+function setSizes(data) {
+  console.log('setSizes');
+  w = window.innerWidth > 960 ? 960 : window.innerWidth;
+  h = w * 0.5;
+  p = 50;
+  svg
   .attr('width', w)
   .attr('height', h)
+  redrawAll(data);
+}
 
 let currMax = 0;
 let currMin = 0;
 let timeMinMax = [];
 let currColor = 0;
 
-function drawChart(data, xScale, yScale, id) {
+function drawChart(data, xScale, yScale, id, color) {
+  console.log('drawChart', color);
   const t = d3.transition().duration(1000);
 
   const drawLine = d3.line()
@@ -53,8 +60,8 @@ function drawChart(data, xScale, yScale, id) {
       tooltip
         .html(this.id)
         .style('top', () => {
-          console.log(d3.event.pageX);
-          console.log(d3.event.pageY);
+          // console.log(d3.event.pageX);
+          // console.log(d3.event.pageY);
           return d3.event.pageY - 200 + 'px';
         })
         .style('left', d3.event.pageX + 20 + 'px')
@@ -65,8 +72,8 @@ function drawChart(data, xScale, yScale, id) {
         .style('opacity', 0)
     })
     .attr('fill', 'none')
-    .attr('data-color', colorScale(currColor))
-    .attr('stroke', colorScale(currColor))
+    .attr('data-color', color)
+    .attr('stroke', color)
     .attr('stroke-width', 5)
     .attr('stroke-dasharray', function(d) {return this.getTotalLength()})
     .attr('stroke-dashoffset', function(d) {return -this.getTotalLength()})
@@ -80,6 +87,8 @@ function drawChart(data, xScale, yScale, id) {
 
 function updateChart(data, fullData) {
   console.log('currMax', currMax);
+  // console.log('updateChart, data', data);
+  // console.log('updateChart, fullData', fullData);
   const max = getMax(data.dataset.data);
   if (max > currMax) {
     currMax = max;
@@ -88,7 +97,36 @@ function updateChart(data, fullData) {
   console.log(max);
   const timeMinMax = d3.extent(data.dataset.data, d => parseTime(d[0]));
   const scales = getScales(0, currMax, timeMinMax);
-  drawChart(data.dataset.data, scales.x, scales.y, data.dataset.dataset_code)
+  drawChart(data.dataset.data, scales.x, scales.y, data.dataset.dataset_code, data.graph_color)
+}
+
+function updateGraph(data, update) {
+  console.log('updateGraph', data);
+  console.log('currMax', currMax);
+  let max = 0;
+  if (update) {
+    max = getMax(update.dataset.data)
+  } else {
+    let tempMax = 0;
+    for (let i in data) {
+      tempMax = getMax(data[i].dataset.data)
+      if (tempMax > max) max = tempMax
+    }
+  }
+
+  if (!update) currMax = max;
+  redrawAll(data);
+  // console.log('updateChart, data', data);
+  // console.log('updateChart, fullData', fullData);
+  // const max = getMax(data.dataset.data);
+  // if (max > currMax) {
+  //   currMax = max;
+  //   return redrawAll(data)
+  // }
+  // console.log(max);
+  // const timeMinMax = d3.extent(data.dataset.data, d => parseTime(d[0]));
+  // const scales = getScales(0, currMax, timeMinMax);
+  // drawChart(data.dataset.data, scales.x, scales.y, data.dataset.dataset_code, data.graph_color)
 }
 
 function getScales(min, max, timeMinMax) {
@@ -115,17 +153,70 @@ function redrawAll(data) {
     .style('opacity', 0)
     .remove();
 
-  currColor = 0;
+  // currMax = 0;
+
+  // currColor = 0;
 
   for (const d in data) {
-    console.log(d);
+    console.log('redrawAll d', d);
     let max = getMax(data[d].dataset.data);
     if (max > currMax) currMax = max;
     // console.log(data[d].dataset.data);
     const timeMinMax = d3.extent(data[d].dataset.data, d => parseTime(d[0]))
     const scales = getScales(0, currMax, timeMinMax)
-    drawChart(data[d].dataset.data, scales.x, scales.y, d)
+    drawChart(data[d].dataset.data, scales.x, scales.y, d, data[d].graph_color)
   }
 }
 
-export { redrawAll, updateChart };
+// function renderGraph(data) {
+//   console.log('renderGraph');
+//   console.log(data);
+//   const t = d3.transition().duration(200);
+//
+//   svg.selectAll('path')
+//     .transition(t)
+//     .style('opacity', 0)
+//     .remove();
+//
+//   // currMax = 0;
+//
+//   // currColor = 0;
+//
+//   for (const d in data) {
+//     console.log('redrawAll d', d);
+//     let max = getMax(data[d].dataset.data);
+//     if (max > currMax) currMax = max;
+//     // console.log(data[d].dataset.data);
+//     const timeMinMax = d3.extent(data[d].dataset.data, d => parseTime(d[0]))
+//     const scales = getScales(0, currMax, timeMinMax)
+//     drawChart(data[d].dataset.data, scales.x, scales.y, d, data[d].graph_color)
+//   }
+// }
+
+/**
+* Deletes a line from graph
+* @param {Object} data - Collection of all current lines
+* @param {String} name - Line to delete from graph
+*/
+function deleteLine(data, name) {
+  console.log('deleteLine');
+  let newMax = 0;
+
+  for (let i in data) {
+    const temp = getMax(data[i].dataset.data)
+    if (temp > newMax) newMax = temp;
+  }
+
+  if (newMax < currMax) {
+    currMax = newMax;
+    return redrawAll(data);
+  } else {
+    const t = d3.transition().duration(200);
+    svg.select(`#${name}`)
+      .transition(t)
+      .style('opacity', 0)
+      .remove();
+  }
+}
+
+export { redrawAll, updateChart, deleteLine, updateGraph, setSizes };

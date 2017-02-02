@@ -49,6 +49,13 @@ app.get('/graph/:ind', (req, res) => {
     .catch(err => res.status(500).send());
 });
 
+app.put('/graphs/:ind', (req, res) => {
+  const index = data.indexOf(req.params.ind.toUpperCase())
+  data.splice(index, 1);
+  fs.writeFileSync('data.dat', JSON.stringify(data));
+  res.send();
+});
+
 app.post('/graphs', (req, res) => {
   console.log('in POST /graphs', req.body);
   fetchData(req.body.data)
