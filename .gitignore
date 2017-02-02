@@ -7,4 +7,5 @@ config/config.json
 data.dat
 ecosystem.config.js
 npm-debug.log
+sample_response.json
 temp.js
