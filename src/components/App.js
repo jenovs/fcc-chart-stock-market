@@ -1,7 +1,17 @@
 import React from 'react';
 import io from 'socket.io-client';
 
+import LineChart from './LineChart';
+
 const socket = io();
+
+const styles = {
+  height: 300,
+  width: 500,
+  padding: 30
+}
+
+const dummyData = [2, 14, 6];
 
 export default class App extends React.Component {
   constructor(props) {
@@ -17,7 +27,7 @@ export default class App extends React.Component {
     console.log('componentDidMount');
     this.fetchGraphs();
     socket.on('graph updated', (data) => {
-      console.log('in graph updated', data);
+      // console.log('in graph updated', data);
       this.fetchGraphs();
     });
   }
@@ -42,7 +52,7 @@ export default class App extends React.Component {
         body: JSON.stringify({data})
       })
       .then(res => res.json())
-      .then(json => console.log(json))
+      // .then(json => console.log(json))
     }
   }
 
@@ -53,10 +63,11 @@ export default class App extends React.Component {
   }
 
   render() {
-    console.log(this.state);
+    // console.log(this.state);
     return (
       <div>
         <h2>App Component</h2>
+        <LineChart {...styles} data={dummyData}/>
         {this.listItems()}
         <form>
           <input
