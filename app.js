@@ -53,6 +53,7 @@ app.put('/graphs/:ind', (req, res) => {
   const index = data.indexOf(req.params.ind.toUpperCase())
   data.splice(index, 1);
   fs.writeFileSync('data.dat', JSON.stringify(data));
+  io.emit('line deleted', req.params.ind);
   res.send();
 });
 

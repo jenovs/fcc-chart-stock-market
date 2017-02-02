@@ -14,6 +14,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+  user-select: none;          /* Likely future */   
 }
 
 svg {
@@ -31,10 +35,64 @@ svg {
   flex-wrap: wrap;
   width: 100%;
 }
-.symbols div {
+/*.symbols > div {
+  border: 5px solid transparent;
+  border-radius: 5px;
+  color: white;
+  flex: 1;
+  width: 33%;
+}*/
+.ticker {
+  border: 5px solid black;
+  display: flex;
+  flex-direction: column;
+  border-radius: 5px;
   color: white;
   /*flex: 1;*/
-  width: 33%;
+  flex: 0 1 33%;
+  /*width: 33%;*/
+  /*justify-content: space-around;*/
+  /*align-items: center;*/
+}
+.ticker-title {
+  display: flex;
+  flex-wrap: wrap;
+  min-width: 4rem;
+  padding: 5px;
+  justify-content: space-between;
+  /*align-items: center;*/
+  /*width: 100%*/
+}
+.ticker-symb,
+.ticker-price,
+.ticker-delete {
+  align-items: center;
+  color: #eee;
+  display: flex;
+  flex: 0 1 33%;
+  font-size: 1.5rem;
+  /*flex-shrink: 0;*/
+  font-weight: bold;
+  justify-content: center;
+  /*padding: 1rem;*/
+}
+.ticker-delete {
+  display: flex;
+  /*align-self: flex-end;*/
+  align-items: center;
+  flex: 0 1 10%;
+  justify-content: center;
+  color: white;
+  cursor: default;
+  background-color: tomato;
+  border-radius: 5px;
+  height: 1rem;
+  width: 1rem;
+  padding: 1rem;
+  /*padding-right: 0;*/
+}
+.ticker-descr {
+  padding: 7px;
 }
 .tooltip {
   background-color: #333;

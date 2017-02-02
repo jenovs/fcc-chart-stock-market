@@ -1,30 +1,31 @@
-// import * as d3 from 'd3';
-// import { drawChart, drawSvg } from './drawGraph'
-// import { redrawAll, updateChart, deleteLine } from './graphPlotter'
 import * as graph from './graphPlotter';
 import * as api from './api';
 import { assignColor } from './helpers';
+import tickerBox from './components/TickerBox';
 
 const socket = io();
 
 const tickers = [];
 const gData = {};
-// const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-let currColor = -1;
+// let currColor = -1;
 
 socket.on('graph updated', (json) => {
+  console.log('= socket, graph updated');
   const name = json.dataset.dataset_code;
   tickers.push(name);
   gData[name] = json;
-  addColor(json, name)
+  addNewData(json, name)
   graph.updateGraph(gData);
   addDiv(name, gData[name].graph_color);
-  // const name = json.dataset.dataset_code;
-  // // console.log('name', name);
-  // data[name] = json;
-  // graph.updateChart(json, data)
 });
+
+socket.on('line deleted', (ind) => {
+  console.log('= socket, line deleted');
+  deleteDiv(ind);
+});
+
 ;(function() {
+  console.log('= Initial IIFE');
   graph.setSizes(gData);
   window.addEventListener('resize', graph.setSizes.bind(null, gData))
 
@@ -40,44 +41,82 @@ socket.on('graph updated', (json) => {
     })
 
   function renderData(json, name) {
-    addColor(json, name)
+    console.log('= renderData');
+    addNewData(json, name)
     graph.updateChart(json, gData);
     const price = json.dataset.data[0][4];
-    highlightDiv(name, json.graph_color, json.dataset.name, price);
+    highlightDiv(name);
   }
-
 })()
 
 
-function addColor(json, name) {
+function addNewData(json, name) {
+  console.log('= addNewData');
   gData[name] = json;
   gData[name].graph_color = assignColor();
 }
 
-function highlightDiv(id, color, name, price) {
-  console.log('highlightDiv', id, color, name, price);
-  document.getElementById(`id_${id}`)
-    .setAttribute('style', `background-color: ${color}`)
+function highlightDiv(id) {
+  console.log('= highlightDiv');
+
+  const color = gData[id].graph_color;
+  const name = gData[id].dataset.name;
+  const price = gData[id].dataset.data[0][4];
+
+  const x = document.getElementById(`id_${id}`)
+  // console.log(typeof x);
+    x.innerHTML = tickerBox(id, price, name)
+    x.setAttribute('style', `background-color: ${color}`)
+    x.querySelector('.ticker-delete')
+      .addEventListener('click', emitDelete.bind(null, id))
+    // console.log('x', x.querySelector('.ticker-delete'));
+}
+
+function addDiv(name, color) {
+  console.log('= addDiv', name, color);
+  const parentDiv = document.getElementById('symb');
+  const childDiv = document.createElement('div');
+  childDiv.setAttribute('id', `id_${name}`);
+  childDiv.setAttribute('class', 'ticker');
+  parentDiv.appendChild(childDiv);
+  // const div = document.getElementById('symb');
+  // console.log(div[0]);
+  // div.innerHTML = `<div id=id_${name} class="ticker"></div>`
+
+  highlightDiv(name)
+}
+
+function emitDelete(id) {
+  console.log('= emitDelete');
+  api.updateDelete(id);
 }
 
 function renderTickerDivs(tickers) {
-  console.log('renderTickerDivs');
+  console.log('= renderTickerDivs');
   tickers.forEach(ticker => {
-    console.log(ticker);
+    // console.log(ticker);
+    // console.log(gData);
     const parentDiv = document.getElementById('symb');
     const childDiv = document.createElement('div');
-    childDiv.addEventListener('click', deleteDiv.bind(this, ticker))
-    childDiv.innerHTML = ticker;
+
+    // childDiv.addEventListener('click', deleteDiv.bind(this, ticker))
+
+    childDiv.innerHTML = tickerBox(ticker);
     parentDiv.appendChild(childDiv);
-    childDiv.setAttribute('style', `background-color: #eee`)
+    childDiv.setAttribute('style', `background-color: #aaa`)
+    // childDiv.setAttribute('style', 'border: 5px solid transparent')
     childDiv.setAttribute('id', `id_${ticker}`)
+    childDiv.setAttribute('class', 'ticker')
   })
 }
+
+
 
 const form = document.querySelector('form');
 form.addEventListener('submit', handleSubmit);
 
 function handleSubmit(e) {
+  console.log('= handleSubmit');
   e.preventDefault();
   console.log(e.target[0].value);
   const ind = e.target[0].value.replace(/[^a-z\d]/gi, '').toUpperCase();
@@ -100,37 +139,21 @@ function handleSubmit(e) {
 }
 
 function showError(data) {
-  console.log('showing Error');
+  console.log('= showError');
   console.log(data);
 }
 
-function addDiv(name, color) {
-  console.log('addDiv', name, color);
-  // const color = json.;
-  const parentDiv = document.getElementById('symb');
-  const childDiv = document.createElement('div');
-  childDiv.addEventListener('click', deleteDiv.bind(this, name))
-  childDiv.innerHTML = name;
-  parentDiv.appendChild(childDiv);
 
-  childDiv.setAttribute('style', `background-color: ${color}`)
-  childDiv.setAttribute('id', `id_${name}`)
-  // setTimeout(updateColors, 1000);
+
+function deleteTicker(name) {
+  console.log('= deleteTicker');
+  tickers.splice(tickers.indexOf(name), 1);
+  api.updateDelete(name);
+  console.log('deleteDiv tickers', tickers);
 }
 
-// function updateColors() {
-//   console.log('updateColors, tickers', tickers);
-//   tickers.forEach((t, i) => {
-//     console.log('colorScale', colorScale(i));
-//     const color = document.getElementById(t).dataset.color;
-//     console.log('color', color, t);
-//     document.getElementById(`id_${t}`)
-//       .setAttribute('style', `background-color: ${color}`)
-//   })
-// }
-
 function deleteDiv(name) {
-  console.log('deleteDiv');
+  console.log('= deleteDiv');
   console.log('tickers', tickers);
   console.log('name', name);
 
@@ -143,7 +166,7 @@ function deleteDiv(name) {
   parentDiv.removeChild(currentDiv);
   delete gData[name];
   tickers.splice(tickers.indexOf(name), 1);
-  api.updateDelete(name);
+
   console.log('deleteDiv tickers', tickers);
   // graph.redrawAll(data);
   console.log(gData);
