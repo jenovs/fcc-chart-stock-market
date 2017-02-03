@@ -8,6 +8,11 @@ const path = require('path');
 const express = require('express');
 const fetch = require('node-fetch');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+const Chart = require('./models/chart')
+
+mongoose.Promise = global.Promise;
+mongoose.connect('mongodb://localhost:27017/Stocks');
 
 const app = express();
 const server = require('http').createServer(app);
@@ -23,7 +28,7 @@ const data = fs.existsSync('data.dat') ?
   [];
 
 const fetchData = (ind) => {
-  console.log('in fetchData');
+  console.log('in fetchData', ind);
   const dt = new Date();
   const y = dt.getFullYear();
   const m = dt.getMonth() + 1;
@@ -42,15 +47,42 @@ app.get('/graphs', (req, res) => {
 });
 
 app.get('/graph/:ind', (req, res) => {
-  const date = new Date();
-  console.log(req.params.ind);
-  fetchData(req.params.ind)
+  // const date = new Date();
+
+  Chart.find({ticker: req.params.ind})
+    .then(data => {
+      let chartData;
+      let expired = true;
+      if (data.length) {
+        chartData = JSON.parse(data[0].data);
+        expired = Date.now().toString() - data[0].modified > 12 * 3600 * 1000
+      }
+
+      if (data.length && !expired) {
+        res.send(chartData)
+      } else if (data.length && expired) {
+        return Chart.findOneAndRemove({ticker: req.params.ind})
+          .then(() => fetchData(req.params.ind))
+          .catch(e => e);
+      } else {
+        return fetchData(req.params.ind)
+      }
+    })
     .then(data => data.json())
     .then(json => {
-      console.log((new Date() - date)/1000, 's');
-      res.send(json)
+      const newChart = new Chart({
+        ticker: json.dataset.dataset_code,
+        data: JSON.stringify(json),
+        modified: Date.now().toString()
+      });
+      newChart.save()
+        .then(d => res.send(JSON.parse(d.data)))
+        .catch(e => res.send(json));
+      // console.log((new Date() - date)/1000, 's');
     })
-    .catch(err => res.status(500).send());
+    .catch(err => {
+      res.status(500).send()
+    });
 });
 
 app.put('/graphs/:ind', (req, res) => {
