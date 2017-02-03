@@ -9,7 +9,6 @@ const tickers = [];
 const gData = {};
 
 socket.on('graph updated', (json) => {
-  console.log('= socket, graph updated');
   const name = json.dataset.dataset_code;
   tickers.push(name);
   gData[name] = json;
@@ -19,7 +18,6 @@ socket.on('graph updated', (json) => {
 });
 
 socket.on('line deleted', (ind) => {
-  console.log('= socket, line deleted');
   deleteDiv(ind);
 });
 
