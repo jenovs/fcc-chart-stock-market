@@ -25,7 +25,7 @@ const {
 mongoose.Promise = global.Promise;
 mongoose.connect(MONGODB_URI);
 
-const data = fs.existsSync('data.dat') ?
+const tickerList = fs.existsSync('data.dat') ?
   JSON.parse(fs.readFileSync('data.dat', 'utf8')) :
   [];
 
@@ -76,7 +76,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/graphs', (req, res) => {
-  res.send(data);
+  res.send(tickerList);
 });
 
 app.get('/graph/:ind', (req, res) => {
@@ -86,22 +86,22 @@ app.get('/graph/:ind', (req, res) => {
 });
 
 app.put('/graphs/:ind', (req, res) => {
-  const index = data.indexOf(req.params.ind.toUpperCase())
-  data.splice(index, 1);
-  fs.writeFileSync('data.dat', JSON.stringify(data));
+  const index = tickerList.indexOf(req.params.ind.toUpperCase())
+  tickerList.splice(index, 1);
+  fs.writeFileSync('data.dat', JSON.stringify(tickerList));
   io.emit('line deleted', req.params.ind);
   res.send();
 });
 
 app.post('/graphs', (req, res) => {
-  if (~data.indexOf(req.body.data)) return res.send({error: 'Duplicate item'});
+  if (~tickerList.indexOf(req.body.data)) return res.send({error: 'Duplicate item'});
 
   fetchData(req.body.data)
     .then(json => {
       if (json.quandl_error) throw new Error(json.quandl_error);
-      if (!~data.indexOf(req.body.data)) {
-        data.push(req.body.data);
-        fs.writeFileSync('data.dat', JSON.stringify(data));
+      if (!~tickerList.indexOf(req.body.data) && json.dataset.dataset_code) {
+        tickerList.push(req.body.data);
+        fs.writeFileSync('data.dat', JSON.stringify(tickerList));
         io.emit('graph updated', json)
         res.send(json);
       } else {
