@@ -62,6 +62,7 @@ function addNewData(json, name) {
   console.log('= addNewData');
   gData[name] = json;
   gData[name].graph_color = assignColor();
+  console.log(gData);
 }
 
 function highlightDiv(id) {

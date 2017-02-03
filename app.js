@@ -24,7 +24,11 @@ const data = fs.existsSync('data.dat') ?
 
 const fetchData = (ind) => {
   console.log('in fetchData');
-  const url = `https://www.quandl.com/api/v3/datasets/WIKI/${ind}.json?start_date=2016-01-01&end_date=2017-01-31&api_key=${API_KEY}`
+  const dt = new Date();
+  const y = dt.getFullYear();
+  const m = dt.getMonth() + 1;
+  const d = dt.getDate();
+  const url = `https://www.quandl.com/api/v3/datasets/WIKI/${ind}.json?start_date=${y-1}-${m}-${d}&end_date=${y}-${m}-${d}&api_key=${API_KEY}`
   return fetch(url)
 }
 

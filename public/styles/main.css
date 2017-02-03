@@ -12,6 +12,7 @@ html {
 body {
   display: flex;
   flex-direction: column;
+  font-family: Roboto, sans-serif;
 
   align-items: center;
   min-height: 100vh;
@@ -86,7 +87,6 @@ svg {
   height: 1rem;
   margin: 5px auto;
   padding: 5px;
-  transition: all 1s;
 }
 
 /*#symb-container {
