@@ -14,7 +14,7 @@ function setSizes(data) {
   console.log('setSizes');
   w = window.innerWidth > 960 ? 960 : window.innerWidth;
   h = w * 0.5;
-  l = 10;
+  l = 30;
   p = 50;
   svg
   .attr('width', w)
@@ -54,7 +54,7 @@ function drawChart(data, xScale, yScale, id, color, resize) {
     .attr('class', 'tooltip')
     .style('opacity', 0)
     .style('position', 'absolute')
-    .style('transform', 'translateY(200px)')
+    .style('transform', 'translate(-20px, 200px)')
     .style('pointer-events', 'none')
 
   chartLayer.selectAll('.line')
@@ -73,9 +73,9 @@ function drawChart(data, xScale, yScale, id, color, resize) {
         .style('top', () => {
           // console.log(d3.event.pageX);
           // console.log(d3.event.pageY);
-          return d3.event.pageY - 200 + 'px';
+          return d3.event.pageY - 240 + 'px';
         })
-        .style('left', d3.event.pageX + 20 + 'px')
+        .style('left', d3.event.pageX - 20 + 'px')
     })
     .on('mouseout', d => {
       tooltip

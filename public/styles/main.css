@@ -171,12 +171,21 @@ svg {
 .ticker-descr {
   padding: 7px;
 }
+.tooltip-container {
+  /*background-color: transparent;*/
+  background-color: red;
+  display: flex;
+  justify-content: flex-end;
+  min-width: 3rem;
+}
 .tooltip {
   background-color: #333;
   border-radius: 5px;
   color: white;
   font-weight: bold;
+
   padding: 5px;
+  text-align: right;
 }
 
 .y-axis line {

@@ -27,7 +27,7 @@ socket.on('line deleted', (ind) => {
 ;(function() {
   console.log('= Initial IIFE');
 
-  // console.log('user agent', window.navigator.platform, window.navigator.vendor);
+  console.log('Platform:', window.navigator.platform);
   // const toastDiv = document.getElementById('toast');
   // toastDiv.innerHTML = `<p>${window.navigator.platform}</p>`
   // setTimeout(() => {
