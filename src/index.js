@@ -27,7 +27,7 @@ socket.on('line deleted', (ind) => {
 ;(function() {
   console.log('= Initial IIFE');
   graph.setSizes(gData);
-  window.addEventListener('resize', graph.setSizes.bind(null, gData))
+  window.addEventListener('resize', graph.resize.bind(null, gData))
 
   api.fetchList()
     .then(json => tickers.push(...json))
@@ -140,7 +140,11 @@ function handleSubmit(e) {
 
 function showError(data) {
   console.log('= showError');
-  console.log(data);
+  const toastDiv = document.getElementById('toast');
+  toastDiv.innerHTML = `<span>No data found!</span>`
+  setTimeout(() => {
+    toastDiv.innerHTML = ''
+  }, 3000)
 }
 
 

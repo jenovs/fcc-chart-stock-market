@@ -17,11 +17,40 @@ body {
   -webkit-user-select: none;  /* Chrome all / Safari all */
   -moz-user-select: none;     /* Firefox all */
   -ms-user-select: none;      /* IE 10+ */
-  user-select: none;          /* Likely future */   
+  user-select: none;          /* Likely future */
+}
+
+form {
+  display: flex;
+  justify-content: center;
+  margin: 1rem auto;
+}
+
+form input {
+  font-size: 1.2rem;
+  margin-right: 1rem;
+}
+
+form button {
+  background-color: cornflowerblue;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  padding: 5px;
 }
 
 svg {
   background-color: #eee;
+}
+
+#toast {
+  color: red;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  height: 1rem;
+  transition: all 1s;
 }
 
 .container {
@@ -35,6 +64,8 @@ svg {
   flex-wrap: wrap;
   width: 100%;
 }
+
+
 /*.symbols > div {
   border: 5px solid transparent;
   border-radius: 5px;
@@ -54,6 +85,7 @@ svg {
   /*justify-content: space-around;*/
   /*align-items: center;*/
 }
+
 .ticker-title {
   display: flex;
   flex-wrap: wrap;
@@ -100,4 +132,15 @@ svg {
   color: white;
   font-weight: bold;
   padding: 5px;
+}
+
+@media (max-width: 600px) {
+  .symbols {
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+  .ticker {
+    flex: 1 1 auto;
+    margin: auto 1rem;
+  }
 }
