@@ -59,6 +59,7 @@ app.put('/graphs/:ind', (req, res) => {
 
 app.post('/graphs', (req, res) => {
   console.log('in POST /graphs', req.body);
+  if (~data.indexOf(req.body.data)) return res.send({error: 'Duplicate item'});
   fetchData(req.body.data)
     .then(res => res.json())
     .then(json => {
@@ -66,9 +67,11 @@ app.post('/graphs', (req, res) => {
       if (!~data.indexOf(req.body.data)) {
         data.push(req.body.data);
         fs.writeFileSync('data.dat', JSON.stringify(data));
+        io.emit('graph updated', json)
+        res.send(json);
+      } else {
+        res.send({error: 'Duplicate item'});
       }
-      io.emit('graph updated', json)
-      res.send(json);
     })
     .catch(err => res.send(err))
 });

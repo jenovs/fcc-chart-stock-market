@@ -1,5 +1,4 @@
-html,
-body {
+html {
   height: 100%;
   width: 100%;
 }
@@ -13,17 +12,41 @@ body {
 body {
   display: flex;
   flex-direction: column;
+
   align-items: center;
+  min-height: 100vh;
   -webkit-user-select: none;  /* Chrome all / Safari all */
   -moz-user-select: none;     /* Firefox all */
   -ms-user-select: none;      /* IE 10+ */
   user-select: none;          /* Likely future */
 }
 
+footer {
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: cornflowerblue;
+  line-height: 1.5rem;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+footer a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+footer a:hover {
+  color: #111;
+}
+
 form {
   display: flex;
   justify-content: center;
   margin: 1rem auto;
+  margin-bottom: 0;
 }
 
 form input {
@@ -32,11 +55,22 @@ form input {
 }
 
 form button {
-  background-color: cornflowerblue;
+  background-color: #337ab7;
   border-radius: 5px;
   color: white;
+  font-size: 1.1rem;
   font-weight: bold;
   padding: 5px;
+}
+
+header {
+  background-color: cornflowerblue;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+  width: 100%;
 }
 
 svg {
@@ -50,18 +84,29 @@ svg {
   align-items: center;
   font-weight: bold;
   height: 1rem;
+  margin: 5px auto;
+  padding: 5px;
   transition: all 1s;
 }
+
+/*#symb-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}*/
 
 .container {
   display: flex;
   flex-direction: column;
+  flex: 1;
   max-width: 960px;
+
 }
 
 .symbols {
   display: flex;
   flex-wrap: wrap;
+  /*flex: 1;*/
   width: 100%;
 }
 
@@ -132,6 +177,18 @@ svg {
   color: white;
   font-weight: bold;
   padding: 5px;
+}
+
+.y-axis line {
+  stroke: gray;
+}
+
+.y-axis path {
+  stroke: gray;
+}
+
+.y-axis text {
+  font-size: 1.2rem;
 }
 
 @media (max-width: 600px) {

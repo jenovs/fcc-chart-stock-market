@@ -26,6 +26,14 @@ socket.on('line deleted', (ind) => {
 
 ;(function() {
   console.log('= Initial IIFE');
+
+  // console.log('user agent', window.navigator.platform, window.navigator.vendor);
+  // const toastDiv = document.getElementById('toast');
+  // toastDiv.innerHTML = `<p>${window.navigator.platform}</p>`
+  // setTimeout(() => {
+  //   toastDiv.innerHTML = ''
+  // }, 3000)
+
   graph.setSizes(gData);
   window.addEventListener('resize', graph.resize.bind(null, gData))
 
@@ -141,7 +149,7 @@ function handleSubmit(e) {
 function showError(data) {
   console.log('= showError');
   const toastDiv = document.getElementById('toast');
-  toastDiv.innerHTML = `<span>No data found!</span>`
+  toastDiv.innerHTML = `<p>Duplicate item or no data found!</p>`
   setTimeout(() => {
     toastDiv.innerHTML = ''
   }, 3000)
