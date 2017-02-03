@@ -14,7 +14,6 @@ function getMax(arr) {
 function assignColor() {
   currColor = currColor > 9 ? 0 : currColor + 1;
   return colorScale(currColor);
-
 }
 
 export { getMax, assignColor }
