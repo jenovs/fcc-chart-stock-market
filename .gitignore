@@ -2,6 +2,7 @@ node_modules
 playground
 
 public/js/bundle.js
+public/js/bundle.min.js
 config/config.json
 
 data.dat
