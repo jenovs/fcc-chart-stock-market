@@ -11,8 +11,6 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Chart = require('./models/chart')
 
-mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost:27017/Stocks');
 
 const app = express();
 const server = require('http').createServer(app);
@@ -20,15 +18,18 @@ const io = require('socket.io')(server);
 
 const {
   API_KEY,
+  MONGODB_URI,
   PORT
 } = process.env;
+
+mongoose.Promise = global.Promise;
+mongoose.connect(MONGODB_URI);
 
 const data = fs.existsSync('data.dat') ?
   JSON.parse(fs.readFileSync('data.dat', 'utf8')) :
   [];
 
-const fetchData = (ind) => {
-  console.log('in fetchData', ind);
+function fetchQuotes (ind) {
   const dt = new Date();
   const y = dt.getFullYear();
   const m = dt.getMonth() + 1;
@@ -37,19 +38,8 @@ const fetchData = (ind) => {
   return fetch(url)
 }
 
-app.use(bodyParser.json());
-
-app.use(express.static(path.join(__dirname, 'public')));
-
-app.get('/graphs', (req, res) => {
-  console.log('GET /graphs');
-  res.send(data);
-});
-
-app.get('/graph/:ind', (req, res) => {
-  // const date = new Date();
-
-  Chart.find({ticker: req.params.ind})
+function fetchData (ind) {
+  return Chart.find({ticker: ind})
     .then(data => {
       let chartData;
       let expired = true;
@@ -59,13 +49,13 @@ app.get('/graph/:ind', (req, res) => {
       }
 
       if (data.length && !expired) {
-        res.send(chartData)
+        throw chartData;
       } else if (data.length && expired) {
-        return Chart.findOneAndRemove({ticker: req.params.ind})
-          .then(() => fetchData(req.params.ind))
+        return Chart.findOneAndRemove({ticker: ind})
+          .then(() => fetchQuotes(ind))
           .catch(e => e);
       } else {
-        return fetchData(req.params.ind)
+        return fetchQuotes(ind)
       }
     })
     .then(data => data.json())
@@ -75,14 +65,24 @@ app.get('/graph/:ind', (req, res) => {
         data: JSON.stringify(json),
         modified: Date.now().toString()
       });
-      newChart.save()
-        .then(d => res.send(JSON.parse(d.data)))
-        .catch(e => res.send(json));
-      // console.log((new Date() - date)/1000, 's');
+      return newChart.save()
+        .then(d => JSON.parse(d.data))
     })
-    .catch(err => {
-      res.status(500).send()
-    });
+    .catch(data => data);
+}
+
+app.use(bodyParser.json());
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/graphs', (req, res) => {
+  res.send(data);
+});
+
+app.get('/graph/:ind', (req, res) => {
+  fetchData(req.params.ind)
+    .then(data => res.send(data))
+    .catch(e => res.send({error: 'Error'}))
 });
 
 app.put('/graphs/:ind', (req, res) => {
@@ -94,10 +94,9 @@ app.put('/graphs/:ind', (req, res) => {
 });
 
 app.post('/graphs', (req, res) => {
-  console.log('in POST /graphs', req.body);
   if (~data.indexOf(req.body.data)) return res.send({error: 'Duplicate item'});
+
   fetchData(req.body.data)
-    .then(res => res.json())
     .then(json => {
       if (json.quandl_error) throw new Error(json.quandl_error);
       if (!~data.indexOf(req.body.data)) {
@@ -114,18 +113,6 @@ app.post('/graphs', (req, res) => {
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-io.on('connection', (socket) => {
-  console.log('User connected', socket.id);
-
-  socket.emit('test emit')
-
-  socket.on('test emit', (msg) => {
-    console.log(msg)
-    socket.broadcast.emit('notification')
-  });
-  // io.emit('all', 'message')
 });
 
 server.listen(PORT, () => {
