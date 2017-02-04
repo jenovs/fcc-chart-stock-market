@@ -99,7 +99,7 @@ app.post('/graphs', (req, res) => {
   fetchData(req.body.data)
     .then(json => {
       if (json.quandl_error) throw new Error(json.quandl_error);
-      if (!~tickerList.indexOf(req.body.data) && json.dataset.dataset_code) {
+      if (!~tickerList.indexOf(req.body.data) && json.dataset.dataset_code && json.dataset.data.length) {
         tickerList.push(req.body.data);
         fs.writeFileSync('data.dat', JSON.stringify(tickerList));
         io.emit('graph updated', json)
