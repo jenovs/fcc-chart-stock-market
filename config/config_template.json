@@ -1,0 +1,12 @@
+{
+  "production": {
+    "PORT": 1234,
+    "MONGODB_URI": "mongodb://address of your db",
+    "API_KEY": "Quandl.com API key"
+  },
+  "development": {
+    "PORT": 5678,
+    "MONGODB_URI": "mongodb://address of your db",
+    "API_KEY": "Quandl.com API key"
+  }
+}
