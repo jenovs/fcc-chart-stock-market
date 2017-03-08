@@ -77,7 +77,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // This security flaw is introduced,
 // so that I can reuse this API with other projects
-router.use((req, res, next) => {
+app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   next();
 });
